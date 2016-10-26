@@ -25,68 +25,69 @@ var bot = controller.spawn({
 //Take the pen.
 controller.hears(['me'], 'direct_mention', function (bot, message) {
 
-    console.log(message);
+    //console.log(message);
 
-    //Get stored channel data to see if the pen is somewhere.
-    controller.storage.channels.get(message.channel, function (err, channelData) {
+    //Get pen data from storage.
+    function getPenData(callback) {
+        controller.storage.channels.get(message.channel, function (err, storage) {
+            if (!storage || !storage.data) {
+                callback(null, []);
+            } else {
+                callback(null, storage.data);
+            }
+        });
+    }
 
-        //console.log('Channel Data:', channelData);
+    //Check pen data to see if it is free.
+    function checkPenFree(data) {
+        if (data.length === 0) {
+            return true;
+        } else {
+            //TODO:  Need to walk the data to see if the latest one is down.
+            return false;
+        }
+    }
+
+    //Save pen data.
+    function savePenData(storedData, callback) {
+
+        var newEntry = {
+            user: message.user,
+            timestamp: message.ts,
+            action: 'up'
+        };
+
+        storedData.push(newEntry);
+
+        console.log(storedData);
 
         controller.storage.channels.save({
             id: message.channel,
-            timestamp: message.ts,
-            user: message.user,
-            action: 'up'
+            data: storedData
         }, function (err) {
-
             if (err) {
-                console.error(err);
+                callback(err);
             } else {
-
-                //Get user info.
-                bot.api.users.info({
-                    token: slackToken,
-                    user: message.user
-                }, function (err, userData) {
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        bot.reply(message, 'The pen is yours <@' + message.user + '|' + userData.user.name + '>');
-                    }
-                });
-
-
-
-
+                callback(null);
             }
-
-
         });
+    }
 
-
-
-        /*
-        //If no data or pen nowhere.
-        if (!channelData) {
-            //Make message user penmaster.
-            controller.storage.channels.save({
-                id: message.channel,
-                penMaster: message.user
-            }, function (err) {
-                //write all out for debug.
-                //controller.storage.channels.all(function (err, all_channel_data) {
-                //    console.log(all_channel_data);
-                //});
-
-                controller.storage.channels.get(message.channel, function (err, all_channel_data) {
-                    console.log(all_channel_data);
+    //Run it all!
+    getPenData(function (err, storedData) {
+        if (err) {
+            console.log(err);
+        } else {
+            if (checkPenFree(storedData)) {
+                savePenData(storedData, function (err, res) {
+                    bot.reply(message, 'The pen is yours <@' + message.user + '|' + userData.user.name + '>');
                 });
-
-
-                bot.reply(message, 'You are now the penmaster');
-            });
-        }*/
+            } else {
+                bot.reply(message, 'No pen for you!');
+            }
+        }
     });
+
 });
 
 //Handle where is pen requests.
