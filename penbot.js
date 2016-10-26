@@ -8,6 +8,8 @@ if (!process.env.BOT_API_KEY) {
 
 var Botkit = require('Botkit');
 var os = require('os');
+var _ = require('lodash');
+var moment = require('moment');
 
 var controller = Botkit.slackbot({
     debug: false,
@@ -33,6 +35,40 @@ function getPenData(channel, callback) {
     });
 }
 
+function getPenStatus(channel, callback) {
+
+    getPenData(channel, function (err, penData) {
+
+        function sortOrder(a, b) {
+            var momentA = moment(a.timestamp);
+            var momentB = moment(b.timestamp);
+            if (momentA.isBefore(momentB)) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+
+        var sortedData = penData.sort(sortOrder);
+        var currentEntry = sortedData[0];
+        callback(null, currentEntry);
+
+    });
+}
+
+function getUserData(inputUser, callback) {
+
+    bot.api.users.info({
+        token: slackToken,
+        user: inputUser
+    }, function (err, userData) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null, userData);
+        }
+    });
+}
 
 //Take the pen.
 controller.hears(['me'], 'direct_mention', function (bot, message) {
@@ -97,26 +133,23 @@ controller.hears(['me'], 'direct_mention', function (bot, message) {
 controller.hears(['who'], 'direct_mention', function (bot, message) {
 
 
-    //Need to use channel storage.
+    getPenStatus(message.channel, function (err, penStatus) {
 
-    //controller.storage.channels.save({id: message.channel, foo:'bar'}, function(err) { ... });
-    //controller.storage.channels.get(id, function(err, channel_data) {...});
+        if (penStatus.action === 'up') {
 
-    console.log(message);
-
-    controller.storage.channels.all(function (err, all_channel_data) {
-        console.log(all_channel_data);
-
-    });
-
-    controller.storage.channels.get(message.channel, function (err, channelData) {
-
-        // console.log(channelData);
+            getUserData(penStatus.user, function (err, userData) {
+                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> currently has the pen.');
+            });
+        } else {
+            bot.reply(message, 'The pen is free.');
+        }
 
     });
 
 
-    bot.api.reactions.add({
+
+
+    /*bot.api.reactions.add({
         timestamp: message.ts,
         channel: message.channel,
         name: 'robot_face',
@@ -126,17 +159,22 @@ controller.hears(['who'], 'direct_mention', function (bot, message) {
         }
     });
 
-
     controller.storage.users.get(message.user, function (err, user) {
         if (user && user.name) {
             bot.reply(message, 'Hello ' + user.name + '!!');
         } else {
             bot.reply(message, 'Hello.');
         }
-    });
+    });*/
 });
 
 
+
+
+
+
+
+/*---Examples below---*/
 
 controller.hears(['hello', 'hi'], 'direct_message,direct_mention,mention', function (bot, message) {
 
