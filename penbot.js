@@ -22,8 +22,6 @@ var bot = controller.spawn({
     token: slackToken
 }).startRTM();
 
-
-
 //Get pen data from storage.
 function getPenData(channel, callback) {
     controller.storage.channels.get(channel, function (err, storage) {
@@ -70,46 +68,46 @@ function getUserData(inputUser, callback) {
     });
 }
 
+
+//Save pen data.
+function savePenData(channel, storedData, newEntry, callback) {
+
+    storedData.push(newEntry);
+
+    console.log(storedData);
+
+    controller.storage.channels.save({
+        id: channel,
+        data: storedData
+    }, function (err) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null);
+        }
+    });
+}
+
+
 //Take the pen.
-controller.hears(['me'], 'direct_mention', function (bot, message) {
-
-    //console.log(message);
-
-
+controller.hears(['mine'], 'direct_mention', function (bot, message) {
 
     //Check pen data to see if it is free.
-    function checkPenFree(data) {
-        if (data.length === 0) {
-            return true;
-        } else {
-            //TODO:  Need to walk the data to see if the latest one is down.
-            return false;
-        }
-    }
+    function checkPenFree(data, callback) {
 
-    //Save pen data.
-    function savePenData(storedData, callback) {
+        getPenStatus(message.channel, function (err, penStatus) {
 
-        var newEntry = {
-            user: message.user,
-            timestamp: message.ts,
-            action: 'up'
-        };
+            console.log(penStatus);
 
-        storedData.push(newEntry);
-
-        console.log(storedData);
-
-        controller.storage.channels.save({
-            id: message.channel,
-            data: storedData
-        }, function (err) {
-            if (err) {
-                callback(err);
+            //TODO: Add or empty in here.
+            if (penStatus.action === 'down') {
+                callback(null, true);
             } else {
-                callback(null);
+                callback(null, false);
             }
+
         });
+
     }
 
     //Run it all!
@@ -117,13 +115,32 @@ controller.hears(['me'], 'direct_mention', function (bot, message) {
         if (err) {
             console.log(err);
         } else {
-            if (checkPenFree(storedData)) {
-                savePenData(storedData, function (err, res) {
-                    bot.reply(message, 'The pen is yours <@' + message.user + '|' + userData.user.name + '>');
-                });
-            } else {
-                bot.reply(message, 'No pen for you!');
-            }
+
+            checkPenFree(storedData, function (err, penFree) {
+
+                if (penFree) {
+
+                    var newEntry = {
+                        user: message.user,
+                        timestamp: message.ts,
+                        action: 'up'
+                    };
+
+                    savePenData(message.channel, storedData, newEntry, function (err, res) {
+                        getUserData(message.user, function (err, userData) {
+                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> the pen is yours.');
+                        });
+                    });
+                } else {
+                    bot.reply(message, 'No pen for you!');
+                }
+
+
+
+
+            });
+
+
         }
     });
 
@@ -135,6 +152,8 @@ controller.hears(['who'], 'direct_mention', function (bot, message) {
 
     getPenStatus(message.channel, function (err, penStatus) {
 
+        console.log(penStatus);
+
         if (penStatus.action === 'up') {
 
             getUserData(penStatus.user, function (err, userData) {
@@ -145,9 +164,6 @@ controller.hears(['who'], 'direct_mention', function (bot, message) {
         }
 
     });
-
-
-
 
     /*bot.api.reactions.add({
         timestamp: message.ts,
@@ -168,11 +184,48 @@ controller.hears(['who'], 'direct_mention', function (bot, message) {
     });*/
 });
 
+controller.hears(['done'], 'direct_mention', function (bot, message) {
+
+    var messageUser = message.user;
+
+    getPenStatus(message.channel, function (err, penStatus) {
+
+        console.log(penStatus);
+        console.log(message.user);
+
+        if (penStatus.action === 'up' && (penStatus.user === message.user)) {
+            getPenData(message.channel, function (err, storedData) {
+                if (err) {
+                    console.log(err);
+                } else {
+
+                    var newEntry = {
+                        user: message.user,
+                        timestamp: message.ts,
+                        action: 'down'
+                    };
+
+                    console.log('hit');
+
+                    savePenData(message.channel, storedData, newEntry, function (err, res) {
+                        getUserData(penStatus.user, function (err, userData) {
+                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> releases the pen.');
+                        });
+                    });
+                }
+            });
 
 
 
 
+        } else {
+            bot.reply(message, 'The pen is not yours to put down.');
+        }
 
+    });
+
+
+});
 
 /*---Examples below---*/
 
