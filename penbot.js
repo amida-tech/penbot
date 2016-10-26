@@ -22,21 +22,24 @@ var bot = controller.spawn({
 
 
 
+//Get pen data from storage.
+function getPenData(channel, callback) {
+    controller.storage.channels.get(channel, function (err, storage) {
+        if (!storage || !storage.data) {
+            callback(null, []);
+        } else {
+            callback(null, storage.data);
+        }
+    });
+}
+
+
 //Take the pen.
 controller.hears(['me'], 'direct_mention', function (bot, message) {
 
     //console.log(message);
 
-    //Get pen data from storage.
-    function getPenData(callback) {
-        controller.storage.channels.get(message.channel, function (err, storage) {
-            if (!storage || !storage.data) {
-                callback(null, []);
-            } else {
-                callback(null, storage.data);
-            }
-        });
-    }
+
 
     //Check pen data to see if it is free.
     function checkPenFree(data) {
@@ -74,7 +77,7 @@ controller.hears(['me'], 'direct_mention', function (bot, message) {
     }
 
     //Run it all!
-    getPenData(function (err, storedData) {
+    getPenData(message.channel, function (err, storedData) {
         if (err) {
             console.log(err);
         } else {
