@@ -38,16 +38,23 @@ function getPenStatus(channel, callback) {
     getPenData(channel, function (err, penData) {
 
         function sortOrder(a, b) {
-            var momentA = moment(a.timestamp);
-            var momentB = moment(b.timestamp);
+
+            //Need to split these on the '.', and take the first half to convert.
+            var momentA = moment(a.timestamp.split('.')[0], "X");
+            var momentB = moment(b.timestamp.split('.')[0], "X");
+
+            //console.log(momentA.format());
+            //console.log(momentB.format());
+
             if (momentA.isBefore(momentB)) {
-                return -1;
-            } else {
                 return 1;
+            } else {
+                return -1;
             }
         }
 
         var sortedData = penData.sort(sortOrder);
+        //console.log(sortedData);
         var currentEntry = sortedData[0];
         callback(null, currentEntry);
 
@@ -74,7 +81,7 @@ function savePenData(channel, storedData, newEntry, callback) {
 
     storedData.push(newEntry);
 
-    console.log(storedData);
+    //console.log(storedData);
 
     controller.storage.channels.save({
         id: channel,
@@ -190,9 +197,6 @@ controller.hears(['done'], 'direct_mention', function (bot, message) {
 
     getPenStatus(message.channel, function (err, penStatus) {
 
-        console.log(penStatus);
-        console.log(message.user);
-
         if (penStatus.action === 'up' && (penStatus.user === message.user)) {
             getPenData(message.channel, function (err, storedData) {
                 if (err) {
@@ -204,8 +208,6 @@ controller.hears(['done'], 'direct_mention', function (bot, message) {
                         timestamp: message.ts,
                         action: 'down'
                     };
-
-                    console.log('hit');
 
                     savePenData(message.channel, storedData, newEntry, function (err, res) {
                         getUserData(penStatus.user, function (err, userData) {
