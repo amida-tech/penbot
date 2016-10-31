@@ -25,6 +25,8 @@ Say @penbot help for a list of commands. Including various keywords in your mess
 	@penbot [done, down, drop] - Sets the pen down if you have it.
 	@penbot [who, where] - Tells you where the pen is at.
 	@penbot [steal] - Steals the pen from whoever has it, if someone has it.
+    @penbot [help] - Lists the commands for @penbot.
+    @penbot [hello, hi] - Say hi to penbot.
 
 ####Deployment:
 
