@@ -7,8 +7,6 @@ var keywords = require('./config/keywords.json');
 var common = require('./lib/common.js');
 
 
-console.log(keywords.penUp);
-
 if (!process.env.BOT_API_KEY) {
     console.log('Error: Specify token in environment');
     process.exit(1);
@@ -29,34 +27,6 @@ var slackToken = process.env.BOT_API_KEY;
 var bot = controller.spawn({
     token: slackToken
 }).startRTM();
-
-function getPenStatus(channel, callback) {
-
-    common.getData(controller, channel, function (err, penData) {
-
-        function sortOrder(a, b) {
-
-            //Need to split these on the '.', and take the first half to convert.
-            var momentA = moment(a.timestamp.split('.')[0], "X");
-            var momentB = moment(b.timestamp.split('.')[0], "X");
-
-            //console.log(momentA.format());
-            //console.log(momentB.format());
-
-            if (momentA.isBefore(momentB)) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-
-        var sortedData = penData.sort(sortOrder);
-        //console.log(sortedData);
-        var currentEntry = sortedData[0];
-        callback(null, currentEntry);
-
-    });
-}
 
 function getUserData(inputUser, callback) {
 
@@ -99,7 +69,7 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
     //Check pen data to see if it is free.
     function checkPenFree(data, callback) {
 
-        getPenStatus(message.channel, function (err, penStatus) {
+        common.getStatus(controller, message.channel, function (err, penStatus) {
 
             console.log(penStatus);
 
@@ -148,7 +118,7 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 controller.hears(keywords.penWho, 'direct_mention', function (bot, message) {
 
 
-    getPenStatus(message.channel, function (err, penStatus) {
+    common.getStatus(controller, message.channel, function (err, penStatus) {
 
         console.log(penStatus);
 
@@ -186,7 +156,7 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
 
     var messageUser = message.user;
 
-    getPenStatus(message.channel, function (err, penStatus) {
+    common.getStatus(controller, message.channel, function (err, penStatus) {
 
         if (penStatus.action === 'up' && (penStatus.user === message.user)) {
             common.getData(controller, message.channel, function (err, storedData) {
