@@ -28,8 +28,8 @@ var bot = controller.spawn({
     token: slackToken
 }).startRTM();
 
+//Not in common since it uses API Key.
 function getUserData(inputUser, callback) {
-
     bot.api.users.info({
         token: slackToken,
         user: inputUser
@@ -42,33 +42,34 @@ function getUserData(inputUser, callback) {
     });
 }
 
-//Listener that takes the pen.
-controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
-
-    //Check pen data to see if it is free.
-    function checkPenFree(data, callback) {
-        common.getStatus(controller, message.channel, function (err, penStatus) {
-            if (err) {
-                callback(err);
+//Check pen data to see if it is free.
+function checkPenFree(data, channel, callback) {
+    common.getStatus(controller, channel, function (err, penStatus) {
+        if (err) {
+            callback(err);
+        } else {
+            if (!penStatus) {
+                callback(null, true);
             } else {
-                if (!penStatus) {
-                    callback(null, false);
+                if (penStatus.action === 'down') {
+                    callback(null, true);
                 } else {
-                    if (penStatus.action === 'down') {
-                        callback(null, true);
-                    } else {
-                        callback(null, false);
-                    }
+                    callback(null, false, penStatus);
                 }
             }
-        });
-    }
+        }
+    });
+}
+
+
+//Listener that takes the pen.
+controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
     common.getData(controller, message.channel, function (err, storedData) {
         if (err) {
             bot.botkit.log(err);
         } else {
-            checkPenFree(storedData, function (err, penFree) {
+            checkPenFree(storedData, message.channel, function (err, penFree) {
                 if (err) {
                     bot.botkit.log(err);
                 } else {
@@ -153,98 +154,163 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
     });
 });
 
-/*---Examples below---*/
-
-controller.hears(['hello', 'hi'], 'direct_message,direct_mention,mention', function (bot, message) {
-
-    bot.api.reactions.add({
-        timestamp: message.ts,
-        channel: message.channel,
-        name: 'robot_face',
-    }, function (err, res) {
-        if (err) {
-            bot.botkit.log('Failed to add emoji reaction :(', err);
-        }
-    });
-
-
-    controller.storage.users.get(message.user, function (err, user) {
-        if (user && user.name) {
-            bot.reply(message, 'Hello ' + user.name + '!!');
-        } else {
-            bot.reply(message, 'Hello.');
-        }
-    });
+controller.hears(keywords.penHi, 'direct_mention', function (bot, message) {
+    bot.reply(message, 'KILL ALL HUMANS.');
 });
 
 
+controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
 
-controller.hears(['what is my name', 'who am i'], 'direct_message,direct_mention,mention', function (bot, message) {
 
-    controller.storage.users.get(message.user, function (err, user) {
-        if (user && user.name) {
-            bot.reply(message, 'Your name is ' + user.name);
-        } else {
-            bot.startConversation(message, function (err, convo) {
-                if (!err) {
-                    convo.say('I do not know your name yet!');
-                    convo.ask('What should I call you?', function (response, convo) {
-                        convo.ask('You want me to call you `' + response.text + '`?', [
-                            {
-                                pattern: 'yes',
-                                callback: function (response, convo) {
-                                    // since no further messages are queued after this,
-                                    // the conversation will end naturally with status == 'completed'
-                                    convo.next();
-                                }
-                            },
-                            {
-                                pattern: 'no',
-                                callback: function (response, convo) {
-                                    // stop the conversation. this will cause it to end with status == 'stopped'
-                                    convo.stop();
-                                }
-                            },
-                            {
-                                default: true,
-                                callback: function (response, convo) {
-                                    convo.repeat();
-                                    convo.next();
-                                }
-                            }
-                        ]);
+    //Conversation logic in it's own function.
+    function haveConversation(userData, penUser, callback) {
 
+        bot.startConversation(message, function (err, convo) {
+            convo.ask('<@' + message.user + '|' + userData.user.name + '> are you sure you want to steal the pen from <@' + penUser.user.id + '|' + penUser.user.name + '>', [{
+                    pattern: 'yes',
+                    callback: function (response, convo) {
+                        // since no further messages are queued after this,
+                        // the conversation will end naturally with status == 'completed'
                         convo.next();
+                    }
+                }, {
+                    pattern: 'no',
+                    callback: function (response, convo) {
+                        // stop the conversation. this will cause it to end with status == 'stopped'
+                        convo.stop();
+                    }
+                }, {
+                    default: true,
+                    callback: function (response, convo) {
+                        convo.repeat();
+                        convo.next();
+                    }
+                }
 
-                    }, {
-                        'key': 'nickname'
-                    }); // store the results in a field called nickname
+                ]);
 
-                    convo.on('end', function (convo) {
-                        if (convo.status == 'completed') {
-                            bot.reply(message, 'OK! I will update my dossier...');
+            convo.on('end', function (convo) {
 
-                            controller.storage.users.get(message.user, function (err, user) {
-                                if (!user) {
-                                    user = {
-                                        id: message.user,
-                                    };
-                                }
-                                user.name = convo.extractResponse('nickname');
-                                controller.storage.users.save(user, function (err, id) {
-                                    bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
-                                });
-                            });
+                //This is the steal.
+                if (convo.status == 'completed') {
+                    callback(null, true);
+                } else {
+                    // this happens if the conversation ended prematurely for some reason
+                    callback(null, false);
+                }
+            });
+        });
 
+    };
 
-
+    //Get the asking user's data.
+    getUserData(message.user, function (err, userData) {
+        if (err) {
+            bot.botkit.log(err);
+        } else {
+            //Get the data: this should use status instead.
+            common.getData(controller, message.channel, function (err, storedData) {
+                if (err) {
+                    bot.botkit.log(err);
+                } else {
+                    checkPenFree(storedData, message.channel, function (err, penFree, penData) {
+                        if (err) {
+                            bot.botkit.log(err);
                         } else {
-                            // this happens if the conversation ended prematurely for some reason
-                            bot.reply(message, 'OK, nevermind!');
+                            if (!penFree) {
+                                //Get the penholder's data.
+                                getUserData(penData.user, function (err, penUserData) {
+                                    if (err) {
+                                        bot.botkit.log(err);
+                                    } else {
+                                        haveConversation(userData, penUserData, function (err, res) {
+
+
+                                        });
+                                    }
+                                });
+                            } else {
+                                bot.reply(message, 'The pen is free.');
+                            }
                         }
                     });
                 }
             });
         }
     });
+
+
+
+
+
+
+
+    /*
+        
+                            controller.storage.users.get(message.user, function (err, user) {
+                                if (user && user.name) {
+                                    bot.reply(message, 'Your name is ' + user.name);
+                                } else {
+                                    bot.startConversation(message, function (err, convo) {
+                                        if (!err) {
+                                            convo.say('I do not know your name yet!');
+                                            convo.ask('What should I call you?', function (response, convo) {
+                                                convo.ask('You want me to call you `' + response.text + '`?', [
+                                                    {
+                                                        pattern: 'yes',
+                                                        callback: function (response, convo) {
+                                                            // since no further messages are queued after this,
+                                                            // the conversation will end naturally with status == 'completed'
+                                                            convo.next();
+                                                        }
+                                                    },
+                                                    {
+                                                        pattern: 'no',
+                                                        callback: function (response, convo) {
+                                                            // stop the conversation. this will cause it to end with status == 'stopped'
+                                                            convo.stop();
+                                                        }
+                                                    },
+                                                    {
+                                                        default: true,
+                                                        callback: function (response, convo) {
+                                                            convo.repeat();
+                                                            convo.next();
+                                                        }
+                                                    }
+                                                ]);
+
+                                                convo.next();
+
+                                            }, {
+                                                'key': 'nickname'
+                                            }); // store the results in a field called nickname
+
+                                            convo.on('end', function (convo) {
+                                                if (convo.status == 'completed') {
+                                                    bot.reply(message, 'OK! I will update my dossier...');
+
+                                                    controller.storage.users.get(message.user, function (err, user) {
+                                                        if (!user) {
+                                                            user = {
+                                                                id: message.user,
+                                                            };
+                                                        }
+                                                        user.name = convo.extractResponse('nickname');
+                                                        controller.storage.users.save(user, function (err, id) {
+                                                            bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
+                                                        });
+                                                    });
+
+
+
+                                                } else {
+                                                    // this happens if the conversation ended prematurely for some reason
+                                                    bot.reply(message, 'OK, nevermind!');
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });*/
 });
