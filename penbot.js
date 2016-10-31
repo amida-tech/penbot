@@ -42,27 +42,6 @@ function getUserData(inputUser, callback) {
     });
 }
 
-
-//Save pen data.
-function savePenData(channel, storedData, newEntry, callback) {
-
-    storedData.push(newEntry);
-
-    //console.log(storedData);
-
-    controller.storage.channels.save({
-        id: channel,
-        data: storedData
-    }, function (err) {
-        if (err) {
-            callback(err);
-        } else {
-            callback(null);
-        }
-    });
-}
-
-
 //Take the pen.
 controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
@@ -98,7 +77,7 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
                         timestamp: message.ts,
                         action: 'up'
                     };
-                    savePenData(message.channel, storedData, newEntry, function (err, res) {
+                    common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
                         getUserData(message.user, function (err, userData) {
                             bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> congratulations, the pen is now yours.');
                         });
@@ -170,7 +149,7 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
                         action: 'down'
                     };
 
-                    savePenData(message.channel, storedData, newEntry, function (err, res) {
+                    common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
                         getUserData(penStatus.user, function (err, userData) {
                             bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> releases the pen.');
                         });
