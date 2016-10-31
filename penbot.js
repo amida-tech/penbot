@@ -3,7 +3,6 @@ require('dotenv').config();
 
 //Load keywords from JSON.
 var keywords = require('./config/keywords.json');
-
 var common = require('./lib/common.js');
 
 if (!process.env.BOT_API_KEY) {
@@ -13,8 +12,6 @@ if (!process.env.BOT_API_KEY) {
 
 var Botkit = require('Botkit');
 var os = require('os');
-var _ = require('lodash');
-var moment = require('moment');
 
 var controller = Botkit.slackbot({
     debug: false,
