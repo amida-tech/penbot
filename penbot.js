@@ -89,42 +89,23 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
 });
 
-//Handle where is pen requests.
+//Listener to check for pen status.
 controller.hears(keywords.penWho, 'direct_mention', function (bot, message) {
 
-
     common.getStatus(controller, message.channel, function (err, penStatus) {
-
-        console.log(penStatus);
-
-        if (penStatus.action === 'up') {
-
-            getUserData(penStatus.user, function (err, userData) {
-                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> currently has the pen.');
-            });
-        } else {
-            bot.reply(message, 'The pen is free.');
-        }
-
-    });
-
-    /*bot.api.reactions.add({
-        timestamp: message.ts,
-        channel: message.channel,
-        name: 'robot_face',
-    }, function (err, res) {
         if (err) {
-            bot.botkit.log('Failed to add emoji reaction :(', err);
+            bot.botkit.log(err);
+        } else {
+            if (penStatus.action === 'up') {
+                getUserData(penStatus.user, function (err, userData) {
+                    bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> currently has the pen.');
+                });
+            } else {
+                bot.reply(message, 'The pen is free.');
+            }
         }
     });
 
-    controller.storage.users.get(message.user, function (err, user) {
-        if (user && user.name) {
-            bot.reply(message, 'Hello ' + user.name + '!!');
-        } else {
-            bot.reply(message, 'Hello.');
-        }
-    });*/
 });
 
 controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
