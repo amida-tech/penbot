@@ -42,52 +42,48 @@ function getUserData(inputUser, callback) {
     });
 }
 
-//Take the pen.
+//Listener that takes the pen.
 controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
     //Check pen data to see if it is free.
     function checkPenFree(data, callback) {
-
         common.getStatus(controller, message.channel, function (err, penStatus) {
-
-            console.log(penStatus);
-
-            //TODO: Add or empty in here.
-            if (penStatus.action === 'down') {
-                callback(null, true);
-            } else {
+            if (!penStatus) {
                 callback(null, false);
+            } else {
+                if (penStatus.action === 'down') {
+                    callback(null, true);
+                } else {
+                    callback(null, false);
+                }
             }
-
         });
-
     }
 
-    //Run it all!
     common.getData(controller, message.channel, function (err, storedData) {
         if (err) {
-            console.log(err);
+            console.error(err);
         } else {
-
             checkPenFree(storedData, function (err, penFree) {
-
-                if (penFree) {
-                    var newEntry = {
-                        user: message.user,
-                        timestamp: message.ts,
-                        action: 'up'
-                    };
-                    common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
-                        getUserData(message.user, function (err, userData) {
-                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> congratulations, the pen is now yours.');
-                        });
-                    });
+                if (err) {
+                    console.error(err);
                 } else {
-                    bot.reply(message, 'Nice try. The pen is taken, go to Bub and Pops instead.');
+                    if (penFree) {
+                        var newEntry = {
+                            user: message.user,
+                            timestamp: message.ts,
+                            action: 'up'
+                        };
+                        common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
+                            getUserData(message.user, function (err, userData) {
+                                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> congratulations, the pen is now yours.');
+                            });
+                        });
+                    } else {
+                        bot.reply(message, 'Nice try. The pen is already taken.');
+                    }
                 }
             });
-
-
         }
     });
 
@@ -193,20 +189,7 @@ controller.hears(['hello', 'hi'], 'direct_message,direct_mention,mention', funct
     });
 });
 
-controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
-    var name = message.match[1];
-    controller.storage.users.get(message.user, function (err, user) {
-        if (!user) {
-            user = {
-                id: message.user,
-            };
-        }
-        user.name = name;
-        controller.storage.users.save(user, function (err, id) {
-            bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
-        });
-    });
-});
+
 
 controller.hears(['what is my name', 'who am i'], 'direct_message,direct_mention,mention', function (bot, message) {
 
@@ -277,63 +260,3 @@ controller.hears(['what is my name', 'who am i'], 'direct_message,direct_mention
         }
     });
 });
-
-
-controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function (bot, message) {
-
-    bot.startConversation(message, function (err, convo) {
-
-        convo.ask('Are you sure you want me to shutdown?', [
-            {
-                pattern: bot.utterances.yes,
-                callback: function (response, convo) {
-                    convo.say('Bye!');
-                    convo.next();
-                    setTimeout(function () {
-                        process.exit();
-                    }, 3000);
-                }
-            },
-            {
-                pattern: bot.utterances.no,
-                default: true,
-                callback: function (response, convo) {
-                    convo.say('*Phew!*');
-                    convo.next();
-                }
-        }
-        ]);
-    });
-});
-
-
-controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
-    'direct_message,direct_mention,mention',
-    function (bot, message) {
-
-        var hostname = os.hostname();
-        var uptime = formatUptime(process.uptime());
-
-        bot.reply(message,
-            ':robot_face: I am a bot named <@' + bot.identity.name +
-            '>. I have been running for ' + uptime + ' on ' + hostname + '.');
-
-    });
-
-function formatUptime(uptime) {
-    var unit = 'second';
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'minute';
-    }
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'hour';
-    }
-    if (uptime != 1) {
-        unit = unit + 's';
-    }
-
-    uptime = uptime + ' ' + unit;
-    return uptime;
-}
