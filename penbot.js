@@ -12,7 +12,7 @@ if (!process.env.BOT_API_KEY) {
     process.exit(1);
 }
 
-var Botkit = require('Botkit');
+var Botkit = require('botkit');
 var os = require('os');
 
 var controller = Botkit.slackbot({
