@@ -4,6 +4,9 @@ require('dotenv').config();
 //Load keywords from JSON.
 var keywords = require('./config/keywords.json');
 
+var common = require('./lib/common.js');
+
+
 console.log(keywords.penUp);
 
 if (!process.env.BOT_API_KEY) {
@@ -27,20 +30,9 @@ var bot = controller.spawn({
     token: slackToken
 }).startRTM();
 
-//Get pen data from storage.
-function getPenData(channel, callback) {
-    controller.storage.channels.get(channel, function (err, storage) {
-        if (!storage || !storage.data) {
-            callback(null, []);
-        } else {
-            callback(null, storage.data);
-        }
-    });
-}
-
 function getPenStatus(channel, callback) {
 
-    getPenData(channel, function (err, penData) {
+    common.getData(controller, channel, function (err, penData) {
 
         function sortOrder(a, b) {
 
@@ -123,7 +115,7 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
     }
 
     //Run it all!
-    getPenData(message.channel, function (err, storedData) {
+    common.getData(controller, message.channel, function (err, storedData) {
         if (err) {
             console.log(err);
         } else {
@@ -197,7 +189,7 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
     getPenStatus(message.channel, function (err, penStatus) {
 
         if (penStatus.action === 'up' && (penStatus.user === message.user)) {
-            getPenData(message.channel, function (err, storedData) {
+            common.getData(controller, message.channel, function (err, storedData) {
                 if (err) {
                     console.log(err);
                 } else {
