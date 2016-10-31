@@ -154,9 +154,23 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
     });
 });
 
+
+//Hello.
 controller.hears(keywords.penHi, 'direct_mention', function (bot, message) {
     bot.reply(message, 'KILL ALL HUMANS.');
 });
+
+
+//Help menu.
+controller.hears(keywords.penHelp, 'direct_mention', function (bot, message) {
+    var messageString = "Mention me with the following words to...\n";
+    messageString = messageString + ">take the pen:\t_" + keywords.penUp + '_\n';
+    messageString = messageString + ">drop the pen:\t_" + keywords.penDown + '_\n';
+    messageString = messageString + ">find the pen:\t_ " + keywords.penWho + '_\n';
+    messageString = messageString + ">steal the pen:\t_" + keywords.penSteal + '_\n';
+    bot.reply(message, messageString);
+});
+
 
 
 controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
