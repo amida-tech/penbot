@@ -17,7 +17,8 @@ var os = require('os');
 
 var controller = Botkit.slackbot({
     debug: false,
-    json_file_store: './db'
+    json_file_store: './db',
+    stats_optout: true
 });
 
 var slackToken = process.env.BOT_API_KEY;
