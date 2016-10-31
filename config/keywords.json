@@ -1,0 +1,8 @@
+{
+    "penUp": ["mine", "take", "me", "grab"],
+    "penDown": ["done", "down", "drop"],
+    "penWho": ["who", "where"],
+    "penSteal": ["steal"],
+    "penHi": ["hi", "hello"],
+    "penHelp": ["help"]
+}

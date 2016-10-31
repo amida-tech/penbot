@@ -1,6 +1,11 @@
 //Load config from dotenv.
 require('dotenv').config();
 
+//Load keywords from JSON.
+var keywords = require('./config/keywords.json');
+
+console.log(keywords.penUp);
+
 if (!process.env.BOT_API_KEY) {
     console.log('Error: Specify token in environment');
     process.exit(1);
@@ -97,7 +102,7 @@ function savePenData(channel, storedData, newEntry, callback) {
 
 
 //Take the pen.
-controller.hears(['mine'], 'direct_mention', function (bot, message) {
+controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
     //Check pen data to see if it is free.
     function checkPenFree(data, callback) {
@@ -148,7 +153,7 @@ controller.hears(['mine'], 'direct_mention', function (bot, message) {
 });
 
 //Handle where is pen requests.
-controller.hears(['who'], 'direct_mention', function (bot, message) {
+controller.hears(keywords.penWho, 'direct_mention', function (bot, message) {
 
 
     getPenStatus(message.channel, function (err, penStatus) {
@@ -185,7 +190,7 @@ controller.hears(['who'], 'direct_mention', function (bot, message) {
     });*/
 });
 
-controller.hears(['done'], 'direct_mention', function (bot, message) {
+controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
 
     var messageUser = message.user;
 
