@@ -6,7 +6,6 @@ var keywords = require('./config/keywords.json');
 
 var common = require('./lib/common.js');
 
-
 if (!process.env.BOT_API_KEY) {
     console.log('Error: Specify token in environment');
     process.exit(1);
