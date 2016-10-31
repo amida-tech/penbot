@@ -48,13 +48,17 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
     //Check pen data to see if it is free.
     function checkPenFree(data, callback) {
         common.getStatus(controller, message.channel, function (err, penStatus) {
-            if (!penStatus) {
-                callback(null, false);
+            if (err) {
+                callback(err);
             } else {
-                if (penStatus.action === 'down') {
-                    callback(null, true);
-                } else {
+                if (!penStatus) {
                     callback(null, false);
+                } else {
+                    if (penStatus.action === 'down') {
+                        callback(null, true);
+                    } else {
+                        callback(null, false);
+                    }
                 }
             }
         });
@@ -62,11 +66,11 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
     common.getData(controller, message.channel, function (err, storedData) {
         if (err) {
-            console.error(err);
+            bot.botkit.log(err);
         } else {
             checkPenFree(storedData, function (err, penFree) {
                 if (err) {
-                    console.error(err);
+                    bot.botkit.log(err);
                 } else {
                     if (penFree) {
                         var newEntry = {
@@ -75,9 +79,17 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
                             action: 'up'
                         };
                         common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
-                            getUserData(message.user, function (err, userData) {
-                                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> congratulations, the pen is now yours.');
-                            });
+                            if (err) {
+
+                            } else {
+                                getUserData(message.user, function (err, userData) {
+                                    if (err) {
+                                        bot.botkit.log(err);
+                                    } else {
+                                        bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> congratulations, the pen is now yours.');
+                                    }
+                                });
+                            }
                         });
                     } else {
                         bot.reply(message, 'Nice try. The pen is already taken.');
@@ -91,7 +103,6 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
 //Listener to check for pen status.
 controller.hears(keywords.penWho, 'direct_mention', function (bot, message) {
-
     common.getStatus(controller, message.channel, function (err, penStatus) {
         if (err) {
             bot.botkit.log(err);
@@ -105,45 +116,41 @@ controller.hears(keywords.penWho, 'direct_mention', function (bot, message) {
             }
         }
     });
-
 });
 
+//Listener to put the pen down.
 controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
-
-    var messageUser = message.user;
-
     common.getStatus(controller, message.channel, function (err, penStatus) {
-
-        if (penStatus.action === 'up' && (penStatus.user === message.user)) {
-            common.getData(controller, message.channel, function (err, storedData) {
-                if (err) {
-                    console.log(err);
-                } else {
-
-                    var newEntry = {
-                        user: message.user,
-                        timestamp: message.ts,
-                        action: 'down'
-                    };
-
-                    common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
-                        getUserData(penStatus.user, function (err, userData) {
-                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> releases the pen.');
-                        });
-                    });
-                }
-            });
-
-
-
-
+        if (err) {
+            bot.botkit.log(err);
         } else {
-            bot.reply(message, 'The pen is not yours to put down.');
+            if (penStatus.action === 'up' && (penStatus.user === message.user)) {
+                common.getData(controller, message.channel, function (err, storedData) {
+                    if (err) {
+                        bot.botkit.log(err);
+                    } else {
+                        var newEntry = {
+                            user: message.user,
+                            timestamp: message.ts,
+                            action: 'down'
+                        };
+
+                        common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
+                            if (err) {
+                                bot.botkit.log(err);
+                            } else {
+                                getUserData(penStatus.user, function (err, userData) {
+                                    bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> releases the pen.');
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                bot.reply(message, 'Hey! The pen is not yours to put down.');
+            }
         }
-
     });
-
-
 });
 
 /*---Examples below---*/
