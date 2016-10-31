@@ -28,7 +28,7 @@ Say @penbot help for a list of commands. Including various keywords in your mess
 
 ####Deployment:
 
-Penbot is written in Node, using Botkit:https://github.com/howdyai/botkit/blob/master/readme-slack.md
+Penbot is written in Node, using [Botkit](https://github.com/howdyai/botkit/blob/master/readme-slack.md).
 
 .env file has API key.
 
