@@ -4,9 +4,9 @@
     "description": "pen management machine",
     "main": "penbot.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "node penbot.js"
     },
-    "author": "",
+    "author": "Matthew McCall",
     "license": "Apache-2.0",
     "dependencies": {
         "3": "^1.0.1",
