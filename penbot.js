@@ -107,10 +107,14 @@ controller.hears(keywords.penWho, 'direct_mention', function (bot, message) {
         if (err) {
             bot.botkit.log(err);
         } else {
-            if (penStatus.action === 'up' || penStatus.action === 'steal') {
-                getUserData(penStatus.user, function (err, userData) {
-                    bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> currently has the pen.');
-                });
+            if (penStatus) {
+                if (penStatus.action === 'up' || penStatus.action === 'steal') {
+                    getUserData(penStatus.user, function (err, userData) {
+                        bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> currently has the pen.');
+                    });
+                } else {
+                    bot.reply(message, 'The pen is free.');
+                }
             } else {
                 bot.reply(message, 'The pen is free.');
             }
