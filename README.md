@@ -36,12 +36,4 @@ First you need to register the Bot with Slack and attain an API token.  To do th
 
 The API token is maintained in a .env file. Rename env.sample to .env and replace the BOT_API_KEY value with your API key.
 
-Written using botkit.
-
-
-
-If you want the pen, say @penbot and a sentence with the word 'up' in it. If it isn't held by someone, you get the pen.
-
-If you are done with the pen, say @penbot and a sentence with the word 'down' in it.  If you have the pen, you will set it down.
-
-If you want to know whwere the pen is, say @penbot and a sentence with the word 'who' in it.  It will tell you who has the pen.
+That's it. You should be good to run it using ```node penbot.js```.

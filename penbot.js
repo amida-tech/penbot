@@ -236,28 +236,32 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
                                     if (err) {
                                         bot.botkit.log(err);
                                     } else {
-                                        haveConversation(userData, penUserData, function (err, steal) {
-                                            if (steal) {
-                                                var newEntry = {
-                                                    user: message.user,
-                                                    timestamp: message.ts,
-                                                    action: 'steal'
-                                                };
-                                                common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
-                                                    if (err) {
-                                                        bot.botkit.log(err);
-                                                    } else {
-                                                        bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief.');
-                                                    }
-                                                });
-                                            } else {
-                                                bot.reply(message, '...good.');
-                                            }
-                                        });
+                                        if (userData.user.id === penData.user) {
+                                            bot.reply(message, 'You already have the pen, no need to steal it.');
+                                        } else {
+                                            haveConversation(userData, penUserData, function (err, steal) {
+                                                if (steal) {
+                                                    var newEntry = {
+                                                        user: message.user,
+                                                        timestamp: message.ts,
+                                                        action: 'steal'
+                                                    };
+                                                    common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
+                                                        if (err) {
+                                                            bot.botkit.log(err);
+                                                        } else {
+                                                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief.');
+                                                        }
+                                                    });
+                                                } else {
+                                                    bot.reply(message, '...good.');
+                                                }
+                                            });
+                                        }
                                     }
                                 });
                             } else {
-                                bot.reply(message, 'The pen is free.');
+                                bot.reply(message, 'The pen is free, no need to steal it.');
                             }
                         }
                     });
