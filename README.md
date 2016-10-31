@@ -32,7 +32,9 @@ Say @penbot help for a list of commands. Including various keywords in your mess
 
 Penbot is written in Node, using [Botkit](https://github.com/howdyai/botkit/).
 
-.env file has API key.
+First you need to register the Bot with Slack and attain an API token.  To do this, follow the instructions [here](https://github.com/howdyai/botkit/blob/master/readme-slack.md#getting-started).
+
+The API token is maintained in a .env file. Rename env.sample to .env and replace the BOT_API_KEY value with your API key.
 
 Written using botkit.
 
