@@ -1,5 +1,7 @@
 //Load config from dotenv.
-require('dotenv').config();
+require('dotenv').config({
+    silent: true
+});
 
 //Load keywords from JSON.
 var keywords = require('./config/keywords.json');
