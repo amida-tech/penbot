@@ -126,25 +126,19 @@ controller.hears(['mine'], 'direct_mention', function (bot, message) {
             checkPenFree(storedData, function (err, penFree) {
 
                 if (penFree) {
-
                     var newEntry = {
                         user: message.user,
                         timestamp: message.ts,
                         action: 'up'
                     };
-
                     savePenData(message.channel, storedData, newEntry, function (err, res) {
                         getUserData(message.user, function (err, userData) {
-                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> the pen is yours.');
+                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> congratulations, the pen is now yours.');
                         });
                     });
                 } else {
-                    bot.reply(message, 'No pen for you!');
+                    bot.reply(message, 'Nice try. The pen is taken, go to Bub and Pops instead.');
                 }
-
-
-
-
             });
 
 
