@@ -117,7 +117,7 @@ controller.hears(keywords.penWho, 'direct_mention', function (bot, message) {
             if (penStatus) {
                 if (penStatus.action === 'up' || penStatus.action === 'steal') {
                     getUserData(penStatus.user, function (err, userData) {
-                        bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> currently has the pen.');
+                        bot.reply(message, '<@' + userData.user.id + '|' + userData.user.name + '> currently has the pen.');
                     });
                 } else {
                     bot.reply(message, 'The pen is free.');
