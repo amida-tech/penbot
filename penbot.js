@@ -189,7 +189,7 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
     function haveConversation(userData, penUser, callback) {
 
         bot.startConversation(message, function (err, convo) {
-            convo.ask('<@' + message.user + '|' + userData.user.name + '> are you sure you want to steal the pen from <@' + penUser.user.id + '|' + penUser.user.name + '>', [{
+            convo.ask('<@' + message.user + '|' + userData.user.name + '> are you sure you want to steal the pen from <@' + penUser.user.id + '|' + penUser.user.name + '>?', [{
                     pattern: 'yes',
                     callback: function (response, convo) {
                         // since no further messages are queued after this,
@@ -251,16 +251,33 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
                                         } else {
                                             haveConversation(userData, penUserData, function (err, steal) {
                                                 if (steal) {
-                                                    var newEntry = {
-                                                        user: message.user,
-                                                        timestamp: message.ts,
-                                                        action: 'steal'
-                                                    };
-                                                    common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
+
+                                                    //re get pen status and make sure it hasn't changed.
+                                                    common.getStatus(controller, message.channel, function (err, latestPenStatus) {
                                                         if (err) {
                                                             bot.botkit.log(err);
                                                         } else {
-                                                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief.');
+
+                                                            if (latestPenStatus.user !== penData.user) {
+                                                                bot.reply(message, 'Sorry, ' + '<@' + penUser.user.id + '|' + penUser.user.name + '>' + 'no longer has the pen, so you cannot steal it.');
+                                                            } else {
+                                                                common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
+                                                                    if (err) {
+                                                                        bot.botkit.log(err);
+                                                                    } else {
+                                                                        bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief.');
+                                                                    }
+                                                                });
+                                                            }
+
+
+                                                            var newEntry = {
+                                                                user: message.user,
+                                                                timestamp: message.ts,
+                                                                action: 'steal'
+                                                            };
+
+
                                                         }
                                                     });
                                                 } else {
