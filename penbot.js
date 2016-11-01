@@ -21,6 +21,14 @@ var controller = Botkit.slackbot({
     stats_optout: true
 });
 
+
+//Heroku demands you listen on a port or it kills your app, so here is a stupid web server.
+var http = require('http');
+
+http.createServer(function (req, res) {
+    res.end('the bot is is running\n');
+}).listen(process.env.PORT || 5000);
+
 var slackToken = process.env.BOT_API_KEY;
 
 var bot = controller.spawn({
