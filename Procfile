@@ -1,1 +1,1 @@
-app: npm start
+worker: npm start
