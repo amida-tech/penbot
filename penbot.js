@@ -60,7 +60,6 @@ function checkPenFree(data, channel, callback) {
     });
 }
 
-
 //Listener that takes the pen.
 controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
