@@ -69,38 +69,32 @@ function checkPenFree(channel, callback) {
 //Listener that takes the pen.
 controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
 
-    common.getData(controller, message.channel, function (err, storedData) {
+    checkPenFree(message.channel, function (err, penFree) {
         if (err) {
             bot.botkit.log(err);
         } else {
-            checkPenFree(message.channel, function (err, penFree) {
-                if (err) {
-                    bot.botkit.log(err);
-                } else {
-                    if (penFree) {
-                        var newEntry = {
-                            user: message.user,
-                            timestamp: message.ts,
-                            action: 'up'
-                        };
-                        common.saveData(controller, message.channel, newEntry, function (err, res) {
+            if (penFree) {
+                var newEntry = {
+                    user: message.user,
+                    timestamp: message.ts,
+                    action: 'up'
+                };
+                common.saveData(controller, message.channel, newEntry, function (err, res) {
+                    if (err) {
+                        bot.botkit.log(err);
+                    } else {
+                        getUserData(message.user, function (err, userData) {
                             if (err) {
                                 bot.botkit.log(err);
                             } else {
-                                getUserData(message.user, function (err, userData) {
-                                    if (err) {
-                                        bot.botkit.log(err);
-                                    } else {
-                                        bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> congratulations, the pen is now yours.');
-                                    }
-                                });
+                                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> congratulations, the pen is now yours.');
                             }
                         });
-                    } else {
-                        bot.reply(message, 'Nice try. The pen is already taken.');
                     }
-                }
-            });
+                });
+            } else {
+                bot.reply(message, 'Nice try. The pen is already taken.');
+            }
         }
     });
 });
@@ -133,27 +127,23 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
             bot.botkit.log(err);
         } else {
             if ((penStatus.action === 'up' || penStatus.action === 'steal') && (penStatus.user === message.user)) {
-                common.getData(controller, message.channel, function (err, storedData) {
+
+                var newEntry = {
+                    user: message.user,
+                    timestamp: message.ts,
+                    action: 'down'
+                };
+
+                common.saveData(controller, message.channel, newEntry, function (err, res) {
                     if (err) {
                         bot.botkit.log(err);
                     } else {
-                        var newEntry = {
-                            user: message.user,
-                            timestamp: message.ts,
-                            action: 'down'
-                        };
-
-                        common.saveData(controller, message.channel, newEntry, function (err, res) {
-                            if (err) {
-                                bot.botkit.log(err);
-                            } else {
-                                getUserData(penStatus.user, function (err, userData) {
-                                    bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> releases the pen.');
-                                });
-                            }
+                        getUserData(penStatus.user, function (err, userData) {
+                            bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> releases the pen.');
                         });
                     }
                 });
+
             } else {
                 bot.reply(message, 'Hey! The pen is not yours to put down.');
             }
@@ -161,14 +151,12 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
     });
 });
 
-
 //Hello.
 controller.hears(keywords.penHi, 'direct_mention', function (bot, message) {
     bot.reply(message, 'KILL ALL HUMANS.');
 });
 
-
-//Help menu.
+//Listener for the help menu.
 controller.hears(keywords.penHelp, 'direct_mention', function (bot, message) {
     var messageString = "Mention me with the following words to...\n";
     messageString = messageString + ">take the pen:\t_" + keywords.penUp + '_\n';
@@ -179,8 +167,7 @@ controller.hears(keywords.penHelp, 'direct_mention', function (bot, message) {
     bot.reply(message, messageString);
 });
 
-
-
+//Listener to steal the pen.
 controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
 
     //Conversation logic in it's own function.
@@ -229,67 +216,60 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
         if (err) {
             bot.botkit.log(err);
         } else {
-            //Get the data: this should use status instead.
-            common.getData(controller, message.channel, function (err, storedData) {
+            checkPenFree(message.channel, function (err, penFree, penData) {
                 if (err) {
                     bot.botkit.log(err);
                 } else {
-                    checkPenFree(message.channel, function (err, penFree, penData) {
-                        if (err) {
-                            bot.botkit.log(err);
-                        } else {
-                            if (!penFree) {
-                                //Get the penholder's data.
-                                getUserData(penData.user, function (err, penUserData) {
-                                    if (err) {
-                                        bot.botkit.log(err);
-                                    } else {
-                                        if (userData.user.id === penData.user) {
-                                            bot.reply(message, 'You already have the pen, no need to steal it.');
-                                        } else {
-                                            haveConversation(userData, penUserData, function (err, steal) {
-                                                if (steal) {
+                    if (!penFree) {
+                        //Get the penholder's data.
+                        getUserData(penData.user, function (err, penUserData) {
+                            if (err) {
+                                bot.botkit.log(err);
+                            } else {
+                                if (userData.user.id === penData.user) {
+                                    bot.reply(message, 'You already have the pen, no need to steal it.');
+                                } else {
+                                    haveConversation(userData, penUserData, function (err, steal) {
+                                        if (steal) {
 
-                                                    //re get pen status and make sure it hasn't changed.
-                                                    common.getStatus(controller, message.channel, function (err, latestPenStatus) {
-                                                        if (err) {
-                                                            bot.botkit.log(err);
-                                                        } else {
-
-                                                            if (latestPenStatus.user !== penData.user) {
-                                                                bot.reply(message, 'Sorry, ' + '<@' + penUser.user.id + '|' + penUser.user.name + '>' + 'no longer has the pen, so you cannot steal it.');
-                                                            } else {
-                                                                common.saveData(controller, message.channel, newEntry, function (err, res) {
-                                                                    if (err) {
-                                                                        bot.botkit.log(err);
-                                                                    } else {
-                                                                        bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief.');
-                                                                    }
-                                                                });
-                                                            }
-
-
-                                                            var newEntry = {
-                                                                user: message.user,
-                                                                timestamp: message.ts,
-                                                                action: 'steal'
-                                                            };
-
-
-                                                        }
-                                                    });
+                                            //re get pen status and make sure it hasn't changed.
+                                            common.getStatus(controller, message.channel, function (err, latestPenStatus) {
+                                                if (err) {
+                                                    bot.botkit.log(err);
                                                 } else {
-                                                    bot.reply(message, '...good.');
+
+                                                    if (latestPenStatus.user !== penData.user) {
+                                                        bot.reply(message, 'Sorry, ' + '<@' + penUser.user.id + '|' + penUser.user.name + '>' + 'no longer has the pen, so you cannot steal it.');
+                                                    } else {
+                                                        common.saveData(controller, message.channel, newEntry, function (err, res) {
+                                                            if (err) {
+                                                                bot.botkit.log(err);
+                                                            } else {
+                                                                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief.');
+                                                            }
+                                                        });
+                                                    }
+
+
+                                                    var newEntry = {
+                                                        user: message.user,
+                                                        timestamp: message.ts,
+                                                        action: 'steal'
+                                                    };
+
+
                                                 }
                                             });
+                                        } else {
+                                            bot.reply(message, '...good.');
                                         }
-                                    }
-                                });
-                            } else {
-                                bot.reply(message, 'The pen is free, no need to steal it.');
+                                    });
+                                }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        bot.reply(message, 'The pen is free, no need to steal it.');
+                    }
                 }
             });
         }
