@@ -178,6 +178,7 @@ controller.hears(keywords.penHelp, 'direct_mention', function (bot, message) {
     messageString = messageString + ">drop the pen:\t_" + keywords.penDown + '_\n';
     messageString = messageString + ">find the pen:\t_ " + keywords.penWho + '_\n';
     messageString = messageString + ">steal the pen:\t_" + keywords.penSteal + '_\n';
+    messageString = 'Submit any suggestions or issues to <https://github.com/amida-tech/penbot|Github>.';
     bot.reply(message, messageString);
 });
 
