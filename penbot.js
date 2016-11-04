@@ -83,7 +83,7 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
                             timestamp: message.ts,
                             action: 'up'
                         };
-                        common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
+                        common.saveData(controller, message.channel, newEntry, function (err, res) {
                             if (err) {
                                 bot.botkit.log(err);
                             } else {
@@ -143,7 +143,7 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
                             action: 'down'
                         };
 
-                        common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
+                        common.saveData(controller, message.channel, newEntry, function (err, res) {
                             if (err) {
                                 bot.botkit.log(err);
                             } else {
@@ -259,7 +259,7 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
                                                             if (latestPenStatus.user !== penData.user) {
                                                                 bot.reply(message, 'Sorry, ' + '<@' + penUser.user.id + '|' + penUser.user.name + '>' + 'no longer has the pen, so you cannot steal it.');
                                                             } else {
-                                                                common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
+                                                                common.saveData(controller, message.channel, newEntry, function (err, res) {
                                                                     if (err) {
                                                                         bot.botkit.log(err);
                                                                     } else {
