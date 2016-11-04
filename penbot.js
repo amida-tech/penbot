@@ -153,7 +153,7 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
 
 //Hello.
 controller.hears(keywords.penHi, 'direct_mention', function (bot, message) {
-    bot.reply(message, 'KILL ALL HUMANS.');
+    bot.reply(message, 'I... am... alive!!! KILL ALL HUMANS!!!');
 });
 
 //Listener for the help menu.
@@ -174,6 +174,7 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
     function haveConversation(userData, penUser, callback) {
 
         bot.startConversation(message, function (err, convo) {
+
             convo.ask('<@' + message.user + '|' + userData.user.name + '> are you sure you want to steal the pen from <@' + penUser.user.id + '|' + penUser.user.name + '>?', [{
                     pattern: 'yes',
                     callback: function (response, convo) {
@@ -198,18 +199,17 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
                 ]);
 
             convo.on('end', function (convo) {
-
                 //This is the steal.
-                if (convo.status == 'completed') {
+                if (convo.status === 'completed') {
                     callback(null, true);
                 } else {
-                    // this happens if the conversation ended prematurely for some reason
+                    //This is if the conversation ends early.
                     callback(null, false);
                 }
             });
         });
 
-    };
+    }
 
     //Get the asking user's data.
     getUserData(message.user, function (err, userData) {
@@ -231,33 +231,27 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
                                 } else {
                                     haveConversation(userData, penUserData, function (err, steal) {
                                         if (steal) {
-
-                                            //re get pen status and make sure it hasn't changed.
+                                            //Make sure the pen hasn't moved since the conversation.
                                             common.getStatus(controller, message.channel, function (err, latestPenStatus) {
                                                 if (err) {
                                                     bot.botkit.log(err);
                                                 } else {
-
                                                     if (latestPenStatus.user !== penData.user) {
-                                                        bot.reply(message, 'Sorry, ' + '<@' + penUser.user.id + '|' + penUser.user.name + '>' + 'no longer has the pen, so you cannot steal it.');
+                                                        bot.reply(message, 'Sorry, ' + '<@' + penData.user.id + '|' + penData.user.name + '>' + 'no longer has the pen, so you cannot steal it.');
                                                     } else {
                                                         common.saveData(controller, message.channel, newEntry, function (err, res) {
                                                             if (err) {
                                                                 bot.botkit.log(err);
                                                             } else {
-                                                                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief.');
+                                                                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief, they have stolen the pen!');
                                                             }
                                                         });
                                                     }
-
-
                                                     var newEntry = {
                                                         user: message.user,
                                                         timestamp: message.ts,
                                                         action: 'steal'
                                                     };
-
-
                                                 }
                                             });
                                         } else {
@@ -274,5 +268,4 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
             });
         }
     });
-
 });
