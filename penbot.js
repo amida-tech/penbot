@@ -1,5 +1,6 @@
 var keywords = require('./config/keywords.json');
 var common = require('./lib/common.js');
+var thoughts = require('./lib/thoughts.js');
 var Botkit = require('botkit');
 var os = require('os');
 
@@ -151,9 +152,22 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
     });
 });
 
+
 //Hello.
 controller.hears(keywords.penHi, 'direct_mention', function (bot, message) {
-    bot.reply(message, 'I... am... alive!!! KILL ALL HUMANS!!!');
+
+    bot.reply(message, "Hello! I was showering this morning and overheard...")
+
+    thoughts.getOne(function (err, thought) {
+
+        if (err) {
+            bot.botkit.log(err);
+            bot.reply(message, 'Damn... I forget. Oh well, I better kill all humans!')
+        } else {
+            bot.reply(message, thought);
+        }
+    });
+
 });
 
 //Listener for the help menu.
