@@ -1,35 +1,33 @@
+var keywords = require('./config/keywords.json');
+var common = require('./lib/common.js');
+var Botkit = require('botkit');
+var os = require('os');
+
 //Load config from dotenv.
 require('dotenv').config({
     silent: true
 });
-
-//Load keywords from JSON.
-var keywords = require('./config/keywords.json');
-var common = require('./lib/common.js');
 
 if (!process.env.BOT_API_KEY) {
     console.log('Error: Specify token in environment');
     process.exit(1);
 }
 
-var Botkit = require('botkit');
-var os = require('os');
+var slackToken = process.env.BOT_API_KEY;
 
+//Heroku demands you listen on a port or it kills your app, so here is a stupid web server.
+var http = require('http');
+http.createServer(function (req, res) {
+    res.end('the bot is is running\n');
+}).listen(process.env.PORT || 5000);
+
+
+//Initialize penbot.
 var controller = Botkit.slackbot({
     debug: false,
     json_file_store: './db',
     stats_optout: true
 });
-
-
-//Heroku demands you listen on a port or it kills your app, so here is a stupid web server.
-var http = require('http');
-
-http.createServer(function (req, res) {
-    res.end('the bot is is running\n');
-}).listen(process.env.PORT || 5000);
-
-var slackToken = process.env.BOT_API_KEY;
 
 var bot = controller.spawn({
     token: slackToken
