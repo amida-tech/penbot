@@ -37,3 +37,5 @@ First you need to register the Bot with Slack and attain an API token.  To do th
 The API token is maintained in a .env file. Rename env.sample to .env and replace the ```BOT_API_KEY``` value with your API key.
 
 That's it. You should be good to run it using ```node penbot.js```.
+
+Licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
