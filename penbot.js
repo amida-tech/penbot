@@ -48,7 +48,7 @@ function getUserData(inputUser, callback) {
 }
 
 //Check pen data to see if it is free.
-function checkPenFree(data, channel, callback) {
+function checkPenFree(channel, callback) {
     common.getStatus(controller, channel, function (err, penStatus) {
         if (err) {
             callback(err);
@@ -73,7 +73,7 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
         if (err) {
             bot.botkit.log(err);
         } else {
-            checkPenFree(storedData, message.channel, function (err, penFree) {
+            checkPenFree(message.channel, function (err, penFree) {
                 if (err) {
                     bot.botkit.log(err);
                 } else {
@@ -85,7 +85,7 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
                         };
                         common.saveData(controller, message.channel, storedData, newEntry, function (err, res) {
                             if (err) {
-
+                                bot.botkit.log(err);
                             } else {
                                 getUserData(message.user, function (err, userData) {
                                     if (err) {
@@ -103,7 +103,6 @@ controller.hears(keywords.penUp, 'direct_mention', function (bot, message) {
             });
         }
     });
-
 });
 
 //Listener to check for pen status.
@@ -235,7 +234,7 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
                 if (err) {
                     bot.botkit.log(err);
                 } else {
-                    checkPenFree(storedData, message.channel, function (err, penFree, penData) {
+                    checkPenFree(message.channel, function (err, penFree, penData) {
                         if (err) {
                             bot.botkit.log(err);
                         } else {
