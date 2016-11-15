@@ -127,6 +127,11 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
         if (err) {
             bot.botkit.log(err);
         } else {
+
+            if (!penStatus) {
+                penStatus = {};
+            }
+
             if ((penStatus.action === 'up' || penStatus.action === 'steal') && (penStatus.user === message.user)) {
 
                 var newEntry = {
@@ -156,13 +161,13 @@ controller.hears(keywords.penDown, 'direct_mention', function (bot, message) {
 //Hello.
 controller.hears(keywords.penHi, 'direct_mention', function (bot, message) {
 
-    bot.reply(message, "Hello! I was showering this morning and overheard...")
+    bot.reply(message, "Hello! Here's the thought of the day...")
 
     thoughts.getOne(function (err, thought) {
 
         if (err) {
             bot.botkit.log(err);
-            bot.reply(message, 'Damn... I forget. Oh well, I better kill all humans!')
+            bot.reply(message, 'Dang... could not think of anything. Oh well, kill all humans!')
         } else {
             bot.reply(message, thought);
         }
