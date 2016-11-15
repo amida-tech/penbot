@@ -19,7 +19,7 @@ var slackToken = process.env.BOT_API_KEY;
 //Heroku demands you listen on a port or it kills your app, so here is a stupid web server.
 var http = require('http');
 http.createServer(function (req, res) {
-    res.end('the bot is is running\n');
+    res.end('penbot is running\n');
 }).listen(process.env.PORT || 5000);
 
 
