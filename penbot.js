@@ -258,19 +258,21 @@ controller.hears(keywords.penSteal, 'direct_mention', function (bot, message) {
                                                     if (latestPenStatus.user !== penData.user) {
                                                         bot.reply(message, 'Sorry, ' + '<@' + penData.user.id + '|' + penData.user.name + '>' + 'no longer has the pen, so you cannot steal it.');
                                                     } else {
+
+                                                        var newEntry = {
+                                                            user: message.user,
+                                                            timestamp: message.ts,
+                                                            action: 'steal'
+                                                        };
+
                                                         common.saveData(controller, message.channel, newEntry, function (err, res) {
                                                             if (err) {
                                                                 bot.botkit.log(err);
                                                             } else {
-                                                                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> is a dirty thief, they have stolen the pen!');
+                                                                bot.reply(message, '<@' + message.user + '|' + userData.user.name + '> has stolen the pen! Thief!');
                                                             }
                                                         });
                                                     }
-                                                    var newEntry = {
-                                                        user: message.user,
-                                                        timestamp: message.ts,
-                                                        action: 'steal'
-                                                    };
                                                 }
                                             });
                                         } else {
