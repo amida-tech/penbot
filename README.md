@@ -1,7 +1,7 @@
 
 #@penbot
 
-####A simple Slack bot to manage 'the pen'.
+####A simple Slack bot to manage 'the pen.'
 
 At Amida, we often work as teams writing documentation and reports, working together and in parallel. This can create issues in version control when we find ourselves reconciling two documents manually. To address this, we pass around 'the pen'. Whoever has the pen is in control of the master document being worked on at that time.
 
