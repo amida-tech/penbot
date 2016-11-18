@@ -68,7 +68,7 @@ function checkPenFree(channel, callback) {
 }
 
 //Listener that takes the pen.
-controller.hears(keywords.penUp, 'mention', function (bot, message) {
+controller.hears(keywords.penUp, ['mention', 'direct_mention'], function (bot, message) {
 
     checkPenFree(message.channel, function (err, penFree) {
         if (err) {
@@ -101,7 +101,7 @@ controller.hears(keywords.penUp, 'mention', function (bot, message) {
 });
 
 //Listener to check for pen status.
-controller.hears(keywords.penWho, 'mention', function (bot, message) {
+controller.hears(keywords.penWho, ['mention', 'direct_mention'], function (bot, message) {
     common.getStatus(controller, message.channel, function (err, penStatus) {
         if (err) {
             bot.botkit.log(err);
@@ -122,7 +122,7 @@ controller.hears(keywords.penWho, 'mention', function (bot, message) {
 });
 
 //Listener to put the pen down.
-controller.hears(keywords.penDown, 'mention', function (bot, message) {
+controller.hears(keywords.penDown, ['mention', 'direct_mention'], function (bot, message) {
     common.getStatus(controller, message.channel, function (err, penStatus) {
         if (err) {
             bot.botkit.log(err);
@@ -159,7 +159,7 @@ controller.hears(keywords.penDown, 'mention', function (bot, message) {
 
 
 //Hello.
-controller.hears(keywords.penHi, 'mention', function (bot, message) {
+controller.hears(keywords.penHi, ['mention', 'direct_mention'], function (bot, message) {
 
     bot.reply(message, "Hello! Here's the thought of the day...")
 
@@ -176,7 +176,7 @@ controller.hears(keywords.penHi, 'mention', function (bot, message) {
 });
 
 //Listener for the help menu.
-controller.hears(keywords.penHelp, 'mention', function (bot, message) {
+controller.hears(keywords.penHelp, ['mention', 'direct_mention'], function (bot, message) {
     var messageString = "Mention me with the following words to...\n";
     messageString = messageString + ">take the pen:\t_" + keywords.penUp + '_\n';
     messageString = messageString + ">drop the pen:\t_" + keywords.penDown + '_\n';
@@ -187,7 +187,7 @@ controller.hears(keywords.penHelp, 'mention', function (bot, message) {
 });
 
 //Listener to steal the pen.
-controller.hears(keywords.penSteal, 'mention', function (bot, message) {
+controller.hears(keywords.penSteal, ['mention', 'direct_mention'], function (bot, message) {
 
     //Conversation logic in it's own function.
     function haveConversation(userData, penUser, callback) {
