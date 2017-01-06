@@ -22,13 +22,25 @@ http.createServer(function (req, res) {
     res.end('penbot is running\n');
 }).listen(process.env.PORT || 5000);
 
+var controller;
 
 //Initialize penbot.
-var controller = Botkit.slackbot({
-    debug: false,
-    json_file_store: './db',
-    stats_optout: true
-});
+if (process.env.REDIS === 'true') {
+    var redisConfig = {};
+    var redisStorage = require('botkit-storage-redis')(redisConfig);
+    controller = Botkit.slackbot({
+        debug: false,
+        storage: redisStorage,
+        stats_optout: true
+    });
+} else {
+    controller = Botkit.slackbot({
+        debug: false,
+        json_file_store: './db',
+        stats_optout: true
+    });
+}
+
 
 var bot = controller.spawn({
     token: slackToken

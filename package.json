@@ -1,18 +1,19 @@
 {
-  "name": "penbot",
-  "version": "1.0.0",
-  "description": "pen management machine",
-  "main": "penbot.js",
-  "scripts": {
-    "start": "node penbot.js"
-  },
-  "author": "Matthew McCall",
-  "license": "Apache-2.0",
-  "repository": "https://github.com/amida-tech/penbot",
-  "dependencies": {
-    "botkit": "^0.4.0",
-    "dotenv": "^2.0.0",
-    "moment": "^2.15.2",
-    "request": "^2.78.0"
-  }
+    "name": "penbot",
+    "version": "1.0.0",
+    "description": "pen management machine",
+    "main": "penbot.js",
+    "scripts": {
+        "start": "node penbot.js"
+    },
+    "author": "Matthew McCall",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/amida-tech/penbot",
+    "dependencies": {
+        "botkit": "^0.4.0",
+        "botkit-storage-redis": "^1.1.0",
+        "dotenv": "^2.0.0",
+        "moment": "^2.15.2",
+        "request": "^2.78.0"
+    }
 }
