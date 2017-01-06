@@ -26,7 +26,9 @@ var controller;
 
 //Initialize penbot.
 if (process.env.REDIS === 'true') {
-    var redisConfig = {};
+    var redisConfig = {
+        url: process.env.REDIS_URL
+    };
     var redisStorage = require('botkit-storage-redis')(redisConfig);
     controller = Botkit.slackbot({
         debug: false,
