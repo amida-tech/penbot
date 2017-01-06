@@ -34,7 +34,7 @@ Penbot is written in [Node.js](https://nodejs.org), using [Botkit](https://githu
 
 First you need to register the Bot with Slack and attain an API token.  To do this, follow the instructions [here](https://github.com/howdyai/botkit/blob/master/readme-slack.md#getting-started).
 
-The API token is maintained in a .env file. Rename env.sample to .env and replace the ```BOT_API_KEY``` value with your API key.  If you want to use Redis as your data store (by default it will use local JSON files), set ```REDIS``` equal to ```true```. You will need to use Redis if you plan to deploy to Heroku due to instance cycling.  By default, Redis will point to ```localhost:6379```.
+The API token is maintained in a .env file. Rename env.sample to .env and replace the ```BOT_API_KEY``` value with your API key.  If you want to use Redis as your data store (by default it will use local JSON files), set ```REDIS``` equal to ```true```. You will need to use Redis if you plan to deploy to Heroku due to instance cycling.  By default, Redis will point to ```localhost:6379```. To change this, change the ```REDIS_URL``` variable to point to your Redis instance.
 
 That's it. You should be good to run it using ```node penbot.js```.
 
