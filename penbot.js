@@ -192,11 +192,11 @@ controller.hears(keywords.penHi, ['mention', 'direct_mention'], function (bot, m
 //Listener for the help menu.
 controller.hears(keywords.penHelp, ['mention', 'direct_mention'], function (bot, message) {
     var messageString = "Mention me with the following words to...\n";
-    messageString = messageString + ">take the pen:\t_" + keywords.penUp + '_\n';
-    messageString = messageString + ">drop the pen:\t_" + keywords.penDown + '_\n';
-    messageString = messageString + ">find the pen:\t_ " + keywords.penWho + '_\n';
-    messageString = messageString + ">steal the pen:\t_" + keywords.penSteal + '_\n';
-    messageString = 'Submit any suggestions or issues to: https://github.com/amida-tech/penbot/issues';
+    messageString = messageString + ">take the pen:\t_" + keywords.penUp + "_\n";
+    messageString = messageString + ">drop the pen:\t_" + keywords.penDown + "_\n";
+    messageString = messageString + ">find the pen:\t_ " + keywords.penWho + "_\n";
+    messageString = messageString + ">steal the pen:\t_" + keywords.penSteal + "_\n";
+    messageString = messageString + "Submit any suggestions or issues to: https://github.com/amida-tech/penbot/issues";
     bot.reply(message, messageString);
 });
 
