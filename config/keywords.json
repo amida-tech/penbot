@@ -1,5 +1,6 @@
 {
-    "penUp": ["mine", "take", "me", "grab"],
+    "penName": ["name"],
+    "penUp": ["mine", "take", "\\bme\\b", "gimme", "grab"],
     "penDown": ["done", "down", "drop", "release"],
     "penWho": ["who", "where"],
     "penSteal": ["steal"],

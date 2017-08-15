@@ -21,7 +21,7 @@ If you want to use @penbot, start a channel in Slack and add the user @penbot to
 
 Say @penbot help for a list of commands. Including various keywords in your message to @penbot is how you move the pen around. Default commands:
 
-	@penbot [mine, take, me, grab] - Takes the pen if it is available.
+	@penbot [mine, take, me, gimme, grab] - Takes the pen if it is available.
 	@penbot [done, down, drop] - Sets the pen down if you have it.
 	@penbot [who, where] - Tells you where the pen is at.
 	@penbot [steal] - Steals the pen from whoever has it, if someone has it.
