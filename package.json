@@ -10,7 +10,7 @@
     "license": "Apache-2.0",
     "repository": "https://github.com/amida-tech/penbot",
     "dependencies": {
-        "botkit": "^0.4.0",
+        "botkit": "^0.5.0",
         "botkit-storage-redis": "^1.1.0",
         "dotenv": "^2.0.0",
         "moment": "^2.15.2",

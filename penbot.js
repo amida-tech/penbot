@@ -94,7 +94,7 @@ controller.hears(keywords.penUp, ['mention', 'direct_mention'], function (bot, m
                     timestamp: message.ts,
                     action: 'up'
                 };
-                common.saveData(controller, message.channel, newEntry, function (err, res) {
+                common.saveData(controller, message.channel, newEntry, function (err) {
                     if (err) {
                         bot.botkit.log(err);
                     } else {
@@ -154,7 +154,7 @@ controller.hears(keywords.penDown, ['mention', 'direct_mention'], function (bot,
                     action: 'down'
                 };
 
-                common.saveData(controller, message.channel, newEntry, function (err, res) {
+                common.saveData(controller, message.channel, newEntry, function (err) {
                     if (err) {
                         bot.botkit.log(err);
                     } else {
@@ -191,8 +191,21 @@ controller.hears(keywords.penHi, ['mention', 'direct_mention'], function (bot, m
 
 //Listener for the help menu.
 controller.hears(keywords.penHelp, ['mention', 'direct_mention'], function (bot, message) {
+    
+    //Clean the regex from help display.
+    function clearRexEx (inputArray) {
+        for (var i=0;i<inputArray.length;i++) {
+            //Only stripping word boundaries.
+            if (inputArray[i].includes("\\b")) {
+                inputArray[i] = inputArray[i].replace(/\\b/g, "");
+            }
+        }
+        return inputArray;
+    }
+    
+    
     var messageString = "Mention me with the following words to...\n";
-    messageString = messageString + ">take the pen:\t_" + keywords.penUp + "_\n";
+    messageString = messageString + ">take the pen:\t_" + clearRexEx(keywords.penUp) + "_\n";
     messageString = messageString + ">drop the pen:\t_" + keywords.penDown + "_\n";
     messageString = messageString + ">find the pen:\t_ " + keywords.penWho + "_\n";
     messageString = messageString + ">steal the pen:\t_" + keywords.penSteal + "_\n";
@@ -279,7 +292,7 @@ controller.hears(keywords.penSteal, ['mention', 'direct_mention'], function (bot
                                                             action: 'steal'
                                                         };
 
-                                                        common.saveData(controller, message.channel, newEntry, function (err, res) {
+                                                        common.saveData(controller, message.channel, newEntry, function (err) {
                                                             if (err) {
                                                                 bot.botkit.log(err);
                                                             } else {
