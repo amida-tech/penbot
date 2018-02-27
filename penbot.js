@@ -94,7 +94,7 @@ controller.hears(keywords.penUp, ['mention', 'direct_mention'], function (bot, m
                     timestamp: message.ts,
                     action: 'up'
                 };
-                common.saveData(controller, message.channel, newEntry, function (err, res) {
+                common.saveData(controller, message.channel, newEntry, function (err) {
                     if (err) {
                         bot.botkit.log(err);
                     } else {
@@ -154,7 +154,7 @@ controller.hears(keywords.penDown, ['mention', 'direct_mention'], function (bot,
                     action: 'down'
                 };
 
-                common.saveData(controller, message.channel, newEntry, function (err, res) {
+                common.saveData(controller, message.channel, newEntry, function (err) {
                     if (err) {
                         bot.botkit.log(err);
                     } else {
@@ -292,7 +292,7 @@ controller.hears(keywords.penSteal, ['mention', 'direct_mention'], function (bot
                                                             action: 'steal'
                                                         };
 
-                                                        common.saveData(controller, message.channel, newEntry, function (err, res) {
+                                                        common.saveData(controller, message.channel, newEntry, function (err) {
                                                             if (err) {
                                                                 bot.botkit.log(err);
                                                             } else {
